@@ -1,0 +1,19 @@
+[package]
+authors = ["Kurozero <kurozeroinc@gmail.com>"]
+name = "maika"
+version = "0.1.0"
+
+[dependencies]
+chrono = "*"
+serenity = { git = "https://github.com/zeyla/serenity", branch = "v0.5.0" }
+toml = "0.4.2"
+time = "0.1"
+rand = "0.3"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+colored = "1.6"
+cleverbot_io = "*"
+kitsu_io = { git = "https://github.com/zeyla/kitsu.rs" }
+env_logger = "~0.4"
+kankyo = "~0.1"
