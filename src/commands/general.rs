@@ -7,6 +7,8 @@ use std::env;
 use serenity::client::{Context};
 use serenity::framework::standard::{Args, CommandError};
 use serenity::model::Message;
+use psutil;
+use serenity::client::CACHE;
 
 pub fn ping(_: &mut Context, msg: &Message, _: Args) -> Result<(), CommandError> {
     let start = PreciseTime::now();
@@ -98,6 +100,56 @@ pub fn cleverbot(_ctx: &mut Context, msg: &Message, args: Args) -> Result<(), Co
     logger::error(format!("Error sending message\n{:?}", m));
     return Ok(());
   }
+
+  Ok(())
+}
+
+pub fn stats(_ctx: &mut Context, msg: &Message, _args: Args) -> Result<(), CommandError> {
+  let processes = match psutil::process::all() {
+    Ok(processes) => processes,
+    Err(why) => {
+      println!("Err getting processes: {:?}", why);
+
+      let _ = msg.channel_id.say("Error getting stats");
+
+      return Ok(());
+    },
+  };
+
+  let process = match processes.iter().find(|p| p.pid == psutil::getpid()) {
+    Some(process) => process,
+    None => {
+      let _ = msg.channel_id.say("Error getting stats");
+
+      return Ok(());
+    },
+  };
+
+  let memory = match process.memory() {
+    Ok(memory) => memory,
+    Err(why) => {
+      println!("Err getting process memory: {:?}", why);
+
+      let _ = msg.channel_id.say("Error getting stats");
+
+      return Ok(());
+    },
+  };
+
+  const B_TO_MB: u64 = 1024 * 1024;
+
+  let mem_total = memory.size / B_TO_MB;
+  let mem_rss = memory.resident / B_TO_MB;
+  let memory = format!("{}MB/{}MB (RSS/Total)", mem_rss, mem_total);
+  let guilds = CACHE.read().guilds.len();
+
+  let _ = msg.channel_id.send_message(|m|
+    m.embed(|e| e
+      .color(Colour::from_rgb(246, 219, 216))
+      .title("Stats")
+      .field("Version", "0.1.0", true)
+      .field("Guilds", &guilds.to_string(), true)
+      .field("Memory Used", &memory, true)));
 
   Ok(())
 }

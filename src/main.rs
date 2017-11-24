@@ -7,6 +7,7 @@ extern crate cleverbot_io;
 extern crate env_logger;
 extern crate kankyo;
 extern crate colored;
+extern crate psutil;
 
 mod commands;
 mod utils;
@@ -76,7 +77,11 @@ fn main() {
         .exec(commands::general::cleverbot)
         .bucket("main")
         .known_as("talk")
-        .desc("Have a nice converstion with Maika")))
+        .desc("Have a nice converstion with Maika"))
+      .command("stats", |c| c
+        .exec(commands::general::stats)
+        .bucket("main")
+        .desc("Show stats about Maika")))
     .group("Random", |g| g
       .command("choose", |c| c
         .exec(commands::random::choose)
