@@ -7,20 +7,8 @@ use std::env;
 use serenity::client::{Context};
 use serenity::framework::standard::{Args, CommandError};
 use serenity::model::Message;
-/*
-command!(ping(_ctx, msg, _args) {
-  let start = PreciseTime::now();
-  let mut msg = match msg.channel_id.say("Pong!") {
-    Ok(msg) => msg,
-    Err(_) => return Ok(()),
-  };
-  let end = PreciseTime::now();
-  let ms = start.to(end).num_milliseconds();
-  let _ = msg.edit(|m| m.content(&format!("Pong!, {} milliseconds", ms)));
-});
-*/
 
-pub fn ping(_ctx: &mut Context, msg: &Message, _args: Args) -> Result<(), CommandError> {
+pub fn ping(_: &mut Context, msg: &Message, _: Args) -> Result<(), CommandError> {
     let start = PreciseTime::now();
     let mut msg = match msg.channel_id.say("Pong!") {
         Ok(msg) => msg,
@@ -28,7 +16,13 @@ pub fn ping(_ctx: &mut Context, msg: &Message, _args: Args) -> Result<(), Comman
     };
     let end = PreciseTime::now();
     let ms = start.to(end).num_milliseconds();
-    let _ = msg.edit(|m| m.content(&format!("Pong!, {} milliseconds", ms)));
+
+    // if let Some(latency) = ctx.shard.lock().latency() {
+    //  let s = format!("{} ms", latency);
+    //  let _ = msg.edit(|m| m.content(&format!("Pong!, **{}** milliseconds\nShard latency: {}", ms, s)));
+    // } else {
+      let _ = msg.edit(|m| m.content(&format!("Pong!, **{}** ms", ms)));
+    // }
 
     Ok(())
 }

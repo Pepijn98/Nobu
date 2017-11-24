@@ -106,7 +106,7 @@ fn main() {
         .desc("Shows info about an anime")))
   );
 
-  if let Err(err) = client.start() {
+  if let Err(err) = client.start_shards(1) {
     utils::logger::error(format!("Client error:\n{:?}", err));
   }
 }
