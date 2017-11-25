@@ -153,3 +153,9 @@ pub fn stats(_ctx: &mut Context, msg: &Message, _args: Args) -> Result<(), Comma
 
   Ok(())
 }
+
+pub fn invite(_ctx: &mut Context, msg: &Message, _args: Args) -> Result<(), CommandError> {
+  let _ = msg.channel_id.say("You can invite me with: **<https://discordapp.com/oauth2/authorize?&client_id=380101459062161409&scope=bot&permissions=66186303>**");
+
+  Ok(())
+}

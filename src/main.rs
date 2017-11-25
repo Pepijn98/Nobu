@@ -81,7 +81,12 @@ fn main() {
       .command("stats", |c| c
         .exec(commands::general::stats)
         .bucket("main")
-        .desc("Show stats about Maika")))
+        .desc("Show stats about Maika"))
+      .command("invite", |c| c
+        .exec(commands::general::invite)
+        .bucket("main")
+        .known_as("inv")
+        .desc("Get Maika's invite link")))
     .group("Random", |g| g
       .command("choose", |c| c
         .exec(commands::random::choose)
