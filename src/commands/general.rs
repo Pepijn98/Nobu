@@ -1,14 +1,14 @@
+use serenity::client::Context;
+use serenity::client::CACHE;
 use serenity::utils::Colour;
+use serenity::framework::standard::{Args, CommandError};
+use serenity::model::Message;
 use chrono;
 use time::PreciseTime;
 use cleverbot_io::Cleverbot;
 use utils::logger;
 use std::env;
-use serenity::client::{Context};
-use serenity::framework::standard::{Args, CommandError};
-use serenity::model::Message;
 use psutil;
-use serenity::client::CACHE;
 
 pub fn ping(_: &mut Context, msg: &Message, _: Args) -> Result<(), CommandError> {
     let start = PreciseTime::now();

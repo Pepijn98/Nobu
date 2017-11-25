@@ -1,7 +1,7 @@
-use rand::{self, Rng};
-use serenity::client::{Context};
+use serenity::client::Context;
 use serenity::framework::standard::{Args, CommandError};
 use serenity::model::Message;
+use rand::{self, Rng};
 
 pub fn choose(_ctx: &mut Context, msg: &Message, args: Args) -> Result<(), CommandError> {
   let query = args.join(" ");

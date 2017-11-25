@@ -108,10 +108,14 @@ fn main() {
       .command("anime", |c| c
         .exec(commands::otaku::anime)
         .bucket("main")
-        .desc("Shows info about an anime")))
+        .desc("Shows info about an anime"))
+      .command("manga", |c| c
+        .exec(commands::otaku::manga)
+        .bucket("main")
+        .desc("Shows info about a manga")))
   );
 
-  if let Err(err) = client.start_shards(1) {
+  if let Err(err) = client.start_autosharded() {
     utils::logger::error(format!("Client error:\n{:?}", err));
   }
 }
