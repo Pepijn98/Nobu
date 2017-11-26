@@ -8,6 +8,7 @@ extern crate env_logger;
 extern crate kankyo;
 extern crate colored;
 extern crate psutil;
+extern crate schedule_recv;
 
 mod commands;
 mod utils;
@@ -18,13 +19,31 @@ use serenity::client::{Client, Context};
 use serenity::framework::standard::{StandardFramework, help_commands};
 use std::sync::{Arc};
 use std::env;
+use rand::Rng;
 
 struct Handler;
 
 impl EventHandler for Handler {
   fn ready(&self, ctx: Context, ready: Ready) {
     utils::logger::info(format!("{} is connected. Serving {} servers", ready.user.name, ready.guilds.len()));
-    ctx.set_presence(Some(Game::playing("with rust!")), OnlineStatus::Online);
+
+    let games = vec![
+      "with Senpai",
+      "with my master",
+      "visual novels",
+      "type 'maika help'",
+      "prefix: maika ",
+      "with your feelings"
+    ];
+    let mut game = rand::thread_rng().choose(&games);
+    ctx.set_presence(Some(Game::playing(game.unwrap())), OnlineStatus::Online);
+
+    let tick = schedule_recv::periodic_ms(1800000);
+    loop {
+        tick.recv().unwrap();
+        game = rand::thread_rng().choose(&games);
+        ctx.set_presence(Some(Game::playing(game.unwrap())), OnlineStatus::Online);
+    }
   }
 
   fn guild_create(&self, _: Context, guild: Guild, boolean: bool) {
