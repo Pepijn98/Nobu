@@ -42,10 +42,16 @@ fn main() {
   kankyo::load().expect("Failed to load .env file");
   env_logger::init().expect("Failed to initialize env_logger");
 
-  // DISCORD_DEV_TOKEN
-  let token = env::var("DISCORD_TOKEN").unwrap();
-  // DEV_PREFIX
-  let prefix = env::var("PREFIX").unwrap();
+  let mut token = String::new();
+  let mut prefix = String::new();
+  if &env::var("RELEASE").unwrap() == "dev" {
+    token = env::var("DISCORD_DEV_TOKEN").unwrap();
+    prefix = env::var("DEV_PREFIX").unwrap();
+  } else if &env::var("RELEASE").unwrap() == "prod" {
+    token = env::var("DISCORD_TOKEN").unwrap();
+    prefix = env::var("PREFIX").unwrap();
+  }
+
   let mut client = Client::new(&token, Handler).unwrap();
 
   client.with_framework(StandardFramework::new()
