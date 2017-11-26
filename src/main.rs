@@ -42,7 +42,9 @@ fn main() {
   kankyo::load().expect("Failed to load .env file");
   env_logger::init().expect("Failed to initialize env_logger");
 
+  // DISCORD_DEV_TOKEN
   let token = env::var("DISCORD_TOKEN").unwrap();
+  // DEV_PREFIX
   let prefix = env::var("PREFIX").unwrap();
   let mut client = Client::new(&token, Handler).unwrap();
 

@@ -139,17 +139,22 @@ pub fn stats(_ctx: &mut Context, msg: &Message, _args: Args) -> Result<(), Comma
   const B_TO_MB: u64 = 1024 * 1024;
 
   let mem_total = memory.size / B_TO_MB;
-  let mem_rss = memory.resident / B_TO_MB;
-  let memory = format!("{}MB/{}MB (RSS/Total)", mem_rss, mem_total);
   let guilds = CACHE.read().guilds.len();
+  let channels = CACHE.read().channels.len();
+  let users = CACHE.read().users.len();
+  let cur_guild_id = msg.guild_id().unwrap();
+  let cur_shard = cur_guild_id.shard_id();
 
-  let _ = msg.channel_id.send_message(|m|
-    m.embed(|e| e
+  let _ = msg.channel_id.send_message(|m| m
+    .embed(|e| e
       .color(Colour::from_rgb(246, 219, 216))
-      .title("Stats")
-      .field("Version", "0.1.0", true)
+      .title("Statistics")
+      .field("Version", "0.1.1", true)
+      .field("Memory Used", &format!("{}MB", mem_total), true)
+      .field("Shard", &format!("{}/1", cur_shard.to_string()), true)
       .field("Guilds", &guilds.to_string(), true)
-      .field("Memory Used", &memory, true)));
+      .field("Users", &users.to_string(), true)
+      .field("Channels", &channels.to_string(), true)));
 
   Ok(())
 }
