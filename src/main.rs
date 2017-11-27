@@ -9,6 +9,7 @@ extern crate kankyo;
 extern crate colored;
 extern crate psutil;
 extern crate schedule_recv;
+extern crate serde_json;
 
 mod commands;
 mod utils;
@@ -17,7 +18,7 @@ use serenity::prelude::*;
 use serenity::model::*;
 use serenity::client::{Client, Context};
 use serenity::framework::standard::{StandardFramework, help_commands};
-use std::sync::{Arc};
+use std::sync::Arc;
 use std::env;
 use rand::Rng;
 
@@ -49,11 +50,13 @@ impl EventHandler for Handler {
   fn guild_create(&self, _: Context, guild: Guild, boolean: bool) {
     if boolean == true {
       utils::logger::info(format!("Joined guild {} - ({})", guild.name, guild.id));
+      utils::utils::exec_join_webhook(guild);
     }
   }
 
   fn guild_delete(&self, _: Context, guild: PartialGuild, _: Option<Arc<RwLock<Guild>>>) {
     utils::logger::error(format!("Left guild {} - ({})", guild.name, guild.id));
+    utils::utils::exec_leave_webhook(guild);
   }
 }
 
