@@ -17,21 +17,22 @@ extern crate reqwest;
 mod commands;
 mod utils;
 
-use serenity::client::bridge::gateway::{ShardManager};
+// use serenity::client::bridge::gateway::{ShardManager};
 use serenity::prelude::*;
-use serenity::model::{prelude::Game, user::OnlineStatus, guild::*, gateway::Ready};
+use serenity::model::{prelude::Game, user::OnlineStatus, guild::*, gateway::Ready, id::*};
 use serenity::framework::standard::{StandardFramework, HelpBehaviour, help_commands};
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::env;
+// use std::time::Duration;
+use std::{env/*, thread*/};
 use rand::Rng;
 use typemap::Key;
 
-struct ShardManagerContainer;
+/*pub struct ShardManagerContainer;
 
 impl Key for ShardManagerContainer {
     type Value = Arc<Mutex<ShardManager>>;
-}
+}*/
 
 struct CommandCounter;
 
@@ -43,14 +44,34 @@ struct Handler;
 
 impl EventHandler for Handler {
 	fn ready(&self, ctx: Context, ready: Ready) {
-		utils::logger::info(format!("{} is connected. Serving {} servers", ready.user.name, ready.guilds.len()));
+		let mut user_ids: Vec<UserId> = Vec::new();
+
+		for guild in &ready.guilds {
+			let all = guild.id().members::<UserId>(None, None).unwrap();
+			for mem in all {
+				user_ids.push(mem.user.read().id);
+			}
+		}
+
+		user_ids.sort();
+		user_ids.dedup();
+
+		if let Some(shard) = ready.shard {
+			utils::logger::info(format!(
+				"I'm back master! This is shard {}/{} which has {} guilds and {} users",
+				shard[0],
+				shard[shard.len() - 1],
+				ready.guilds.len(),
+				user_ids.len())
+			);
+		}
 
 		let games = vec![
 			"with Senpai",
 			"with my master",
 			"visual novels",
-			"type 'maika help'",
-			"prefix: maika ",
+			"type `n:help`",
+			"prefix: `n:`",
 			"with your feelings"
 		];
 		let mut game = rand::thread_rng().choose(&games);
@@ -99,13 +120,27 @@ fn main() {
 	{
 		let mut data = client.data.lock();
 		data.insert::<CommandCounter>(HashMap::default());
-		data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));
+		// data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));
 	}
+
+	/*
+	let owners = {
+        let mut set = HashSet::new();
+        
+        let info = match rest::get_current_application_info() {
+            Ok(info) => info,
+            Err(e) => utils::logger::error(format!("Couldn't get application info: {:?}", e)),
+        };
+        set.insert(info.owner.id);
+        set
+	};
+	*/
 
 	client.with_framework(
 		StandardFramework::new()
 			.configure(|c| c
 			.on_mention(true)
+			// .owners(owners)
 			.allow_dm(false)
 			.prefix(&prefix)
 			.delimiters(vec!["| ", "|", " |", " | "]))
@@ -184,7 +219,7 @@ fn main() {
 				.desc("Shows info about a manga")))
 	);
 
-	if let Err(err) = client.start() {
+	if let Err(err) = client.start_shards(8) {
 		utils::logger::error(format!("Client error:\n{:?}", err));
 	}
 }

@@ -1,11 +1,12 @@
 [package]
 authors = ["Kurozero <kurozeroinc@gmail.com>"]
-name = "maika"
+name = "nobu"
 version = "0.2.0"
 
 [dependencies]
 chrono = "*"
-serenity = { git = "https://github.com/zeyla/serenity", branch = "v0.6.x" }
+# serenity = { git = "https://github.com/zeyla/serenity", branch = "v0.6.x" }
+serenity = "0.5"
 toml = "0.4.2"
 time = "0.1"
 rand = "0.3"
