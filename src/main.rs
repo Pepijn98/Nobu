@@ -13,26 +13,28 @@ extern crate schedule_recv;
 extern crate serde_json;
 extern crate typemap;
 extern crate reqwest;
+extern crate tokio_core;
 
 mod commands;
 mod utils;
 
-// use serenity::client::bridge::gateway::{ShardManager};
 use serenity::prelude::*;
-use serenity::model::{prelude::Game, user::OnlineStatus, guild::*, gateway::Ready, id::*};
+use serenity::client::bridge::gateway::ShardManager;
+use serenity::model::{prelude::Game, user::OnlineStatus, guild::*, gateway::Ready};
 use serenity::framework::standard::{StandardFramework, HelpBehaviour, help_commands};
 use std::collections::HashMap;
+use serenity::prelude::Mutex;
 use std::sync::Arc;
-// use std::time::Duration;
-use std::{env/*, thread*/};
+use std::time::Duration;
+use std::{env, thread};
 use rand::Rng;
 use typemap::Key;
 
-/*pub struct ShardManagerContainer;
+struct ShardManagerContainer;
 
 impl Key for ShardManagerContainer {
     type Value = Arc<Mutex<ShardManager>>;
-}*/
+}
 
 struct CommandCounter;
 
@@ -44,6 +46,7 @@ struct Handler;
 
 impl EventHandler for Handler {
 	fn ready(&self, ctx: Context, ready: Ready) {
+		/* It seems like getting all members on ready is too much with ~8k users
 		let mut user_ids: Vec<UserId> = Vec::new();
 
 		for guild in &ready.guilds {
@@ -54,15 +57,14 @@ impl EventHandler for Handler {
 		}
 
 		user_ids.sort();
-		user_ids.dedup();
+		user_ids.dedup(); */
 
 		if let Some(shard) = ready.shard {
 			utils::logger::info(format!(
-				"I'm back master! This is shard {}/{} which has {} guilds and {} users",
+				"I'm back master! This is shard {}/{} which has {} guilds",
 				shard[0],
 				shard[shard.len() - 1],
-				ready.guilds.len(),
-				user_ids.len())
+				ready.guilds.len())
 			);
 		}
 
@@ -74,15 +76,14 @@ impl EventHandler for Handler {
 			"prefix: `n:`",
 			"with your feelings"
 		];
-		let mut game = rand::thread_rng().choose(&games);
-		ctx.set_presence(Some(Game::playing(game.unwrap())), OnlineStatus::Online);
-
-		let tick = schedule_recv::periodic_ms(1800000);
-		loop {
-			tick.recv().unwrap();
-			game = rand::thread_rng().choose(&games);
-			ctx.set_presence(Some(Game::playing(game.unwrap())), OnlineStatus::Online);
-		}
+		
+		thread::spawn(move || {
+				loop {
+					let game = rand::thread_rng().choose(&games);
+					ctx.set_presence(Some(Game::playing(game.unwrap())), OnlineStatus::Online);
+					thread::sleep(Duration::from_secs(1800));
+				}
+		});
 	}
 
 	fn guild_create(&self, _: Context, guild: Guild, boolean: bool) {
@@ -120,27 +121,13 @@ fn main() {
 	{
 		let mut data = client.data.lock();
 		data.insert::<CommandCounter>(HashMap::default());
-		// data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));
+		data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));
 	}
-
-	/*
-	let owners = {
-        let mut set = HashSet::new();
-        
-        let info = match rest::get_current_application_info() {
-            Ok(info) => info,
-            Err(e) => utils::logger::error(format!("Couldn't get application info: {:?}", e)),
-        };
-        set.insert(info.owner.id);
-        set
-	};
-	*/
 
 	client.with_framework(
 		StandardFramework::new()
 			.configure(|c| c
 			.on_mention(true)
-			// .owners(owners)
 			.allow_dm(false)
 			.prefix(&prefix)
 			.delimiters(vec!["| ", "|", " |", " | "]))
@@ -219,7 +206,7 @@ fn main() {
 				.desc("Shows info about a manga")))
 	);
 
-	if let Err(err) = client.start_shards(8) {
+	if let Err(err) = client.start_autosharded() {
 		utils::logger::error(format!("Client error:\n{:?}", err));
 	}
 }

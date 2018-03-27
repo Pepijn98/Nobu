@@ -1,12 +1,11 @@
 [package]
 authors = ["Kurozero <kurozeroinc@gmail.com>"]
 name = "nobu"
-version = "0.2.0"
+version = "0.2.1"
 
 [dependencies]
 chrono = "*"
-# serenity = { git = "https://github.com/zeyla/serenity", branch = "v0.6.x" }
-serenity = "0.5"
+serenity = { git = "https://github.com/zeyla/serenity", branch = "v0.6.x" }
 toml = "0.4.2"
 time = "0.1"
 rand = "0.3"
@@ -21,6 +20,7 @@ psutil = "1.1"
 schedule_recv = "0.1.0"
 typemap = "0.3"
 reqwest = "0.8.0"
+tokio-core = "~0.1"
 
 [dependencies.kitsu]
 version = "0.1"
